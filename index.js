@@ -1,5 +1,5 @@
 // Register a Service Worker.
-navigator.serviceWorker.register('sw.js');
+navigator.serviceWorker.register('service-worker.js');
 
 navigator.serviceWorker.ready
 .then(function(registration) {
@@ -38,7 +38,6 @@ navigator.serviceWorker.ready
   });
 
   document.getElementById('doIt').onclick = function() {
-    const payload = document.getElementById('notification-payload').value;
     const delay = document.getElementById('notification-delay').value;
     const ttl = document.getElementById('notification-ttl').value;
 
@@ -52,7 +51,6 @@ navigator.serviceWorker.ready
       },
       body: JSON.stringify({
         subscription: subscription,
-        payload: payload,
         delay: delay,
         ttl: ttl,
       }),
