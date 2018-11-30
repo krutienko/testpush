@@ -14,6 +14,7 @@ self.addEventListener('fetch', function(event) {
 });
 
 self.addEventListener("push", function(i) {
+	console.log("i: ", i);
 	var t = i.data.json(),
 		n = t.title ? t.title : "Уведомление!",
 		o = "Спасибо за подписку";
