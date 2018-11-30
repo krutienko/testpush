@@ -1,55 +1,33 @@
-self.addEventListener('install', (event) => {
-  console.log('👷', 'install', event);
-  self.skipWaiting();
-});
+function getEndpoint() {
+	return self.registration.pushManager.getSubscription()
+		.then(function(subscription) {
+			if (subscription) {
+				return subscription.endpoint;
+			}
 
-self.addEventListener('activate', (event) => {
-  console.log('👷', 'activate', event);
-  return self.clients.claim();
-});
+			throw new Error('User not subscribed');
+		});
+}
 
-self.addEventListener('fetch', function(event) {
-  console.log('👷', 'fetch', event);
-  event.respondWith(fetch(event.request));
-});
-
-self.addEventListener("push", function(i) {
-	console.log("i: ", i);
-	var t = i.data.json(),
-		n = t.title ? t.title : "Уведомление!",
-		o = "Спасибо за подписку";
-	t.body ? o = t.body : t.alert && (o = t.alert);
-	var a = {
-		body: o,
-		icon: t.icon ? t.icon : "https://aspo.biz/i/aspo_logo_circle_525.png",
-		image: t.image ? t.image : "",
-		tag: "push",
-		requireInteraction: !0
-	};
-	a.data = {
-		id: t.id
-	}, t.url && (a.data.url = t.url), t.custom && t.custom.u && (a.data.url = t.custom.u), i.waitUntil(self.registration.showNotification(n, a))
-}), self.addEventListener("notificationclick", function(i) {
-	i.notification.close(), i.notification.data && i.notification.data.url && clients.openWindow(i.notification.data.url)
-}), self.addEventListener("notificationclose", function(i) {
-	if (i.notification.data && i.notification.data.id) {
-		var t = new Headers;
-		t.append("Content-Type", "application/json");
-		var n = {
-				notification_id: i.notification.data.id,
-				chanel_id: 2,
-				user_event: 2
-			},
-			o = {
-				method: "POST",
-				body: JSON.stringify(n),
-				mode: "no-cors",
-				headers: t
-			},
-			a = new Request("https://aspo.biz/test/push", o);
-			console.log('Request result: ', a);
-		fetch(a).then(function(i) {}).catch(function(i) {
-			console.error(i);
+// Register event listener for the 'push' event.
+self.addEventListener('push', function(event) {
+	// Keep the service worker alive until the notification is created.
+	event.waitUntil(
+		getEndpoint()
+		.then(function(endpoint) {
+			// Retrieve the textual payload from the server using a GET request.
+			// We are using the endpoint as an unique ID of the user for simplicity.
+			return fetch('getPayload.php?endpoint=' + endpoint);
 		})
-	}
+		.then(function(response) {
+			return response.text();
+		})
+		.then(function(payload) {
+			// Show a notification with title 'ServiceWorker Cookbook' and use the payload
+			// as the body.
+			self.registration.showNotification('ServiceWorker Cookbook', {
+				body: payload,
+			});
+		})
+	);
 });
