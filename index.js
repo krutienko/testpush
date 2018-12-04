@@ -2,12 +2,15 @@ var subscription;
 
 navigator.serviceWorker.register('service-worker.js').then(
   function(serviceWorkerRegistration) {
-    serviceWorkerRegistration.pushManager.subscribe({userVisibleOnly: true}).then(
+    serviceWorkerRegistration.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array("BPTBb2cXsZv3HIMs5wFO1j0aV3YYNvM0HyFOj6BHbb3M1T8YQ0W-HjdRi0vUC3sDoCg43Qm2yAzq7GiiQoWLsmM")
+    }).then(
       function(pushSubscription) {
         console.log('success');
         // console.log(pushSubscription.subscriptionId);
         // console.log(pushSubscription.endpoint);
-        console.log(pushSubscription);
+        console.log(JSON.stringify(pushSubscription));
         subscription = pushSubscription;
         console.log(pushSubscription.getKey('p256dh'));
         console.log(pushSubscription.getKey('auth'));        // The push subscription details needed by the application

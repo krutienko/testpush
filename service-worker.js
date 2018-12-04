@@ -4,6 +4,11 @@ this.onpush = function(event) {
 	// windows, display a notification, etc.
 }
 
+self.addEventListener('push', function(event) {
+  var promise = self.registration.showNotification('Push notification!');
+
+  event.waitUntil(promise);
+});
 
 // // Register event listener for the 'push' event.
 // self.addEventListener('push', function(event) {
